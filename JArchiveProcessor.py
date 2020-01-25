@@ -28,10 +28,10 @@ def grabGameDetails(game, seasonID):
     jg.DBConnection =  conn
     jg.gameURL = game
     jg.seasonID = seasonID
-
+ 
   jg.InsertGameRecord()
  
-  if jg.processedIND == 1:
+  if jg.processedIND == 0:
     catTags = page_content.find_all("td", attrs={"class":"category_name"})
     i = 0
     for cat in catTags:
