@@ -168,7 +168,10 @@ class JGame:
 
     def InsertGameRecord(self):
         cur = self.DBConnection.cursor()
-        if cur.execute("select * from games where game_url = ? and processed_ind is null", self.gameURL).rowcount == 0:
+  
+        if cur.execute("select * from games where game_url = ? and processed_ind = 1", self.gameURL).fetchone():
+            self.processedIND = 1
+        else:
             cur.execute("""INSERT INTO [dbo].[Games]
                 ([game_name]
                 ,[game_url]
@@ -179,8 +182,6 @@ class JGame:
             self.gameID =  cur.execute("SELECT @@IDENTITY AS id").fetchval()
             cur.commit()
             self.processedIND = 0
-        else:
-            self.processedIND = 1
 
         
 
