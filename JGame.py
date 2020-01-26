@@ -24,17 +24,18 @@ class JGame:
     _processedIND = 0
 
     #def __init__(self, gameNumber, dbconnection):
-    def set_processedIND(self, processedIND):
-        self._processedIND = processedIND
-    def get_processedIND(self):
-        return self.processedIND
-    processedIND = property(get_processedIND, set_processedIND ) 
 
     def set_seasonID(self, seasonID):
         self._seasonID = seasonID
     def get_seasonID(self):
         return self._seasonID
     seasonID = property(get_seasonID, set_seasonID ) 
+
+    def set_processedIND(self, processedIND):
+        self._processedIND = processedIND
+    def get_processedIND(self):
+        return self._processedIND
+    processedIND = property(get_processedIND, set_processedIND ) 
 
     def set_gameID(self, gameID):
         self._gameID = gameID
@@ -46,21 +47,19 @@ class JGame:
         self._DBConnection = dbconnection
     def get_DBConnection(self):
         return self._DBConnection
-
     DBConnection = property(get_DBConnection, set_DBConnection ) 
-
+    
+    
     def set_gameNumber(self, gamenumber):
         self._gameNumber = gamenumber
     def get_gameNumber(self):
         return self._gameNumber
-
     gameNumber = property(get_gameNumber, set_gameNumber ) 
 
     def set_gameURL(self, gameurl):
         self._gameURL = gameurl
     def get_gameURL(self):
         return self._gameURL
-
     gameURL = property(get_gameURL, set_gameURL ) 
         
     def addQuestionAnswer(self, round, categorynumber, cluenumber , clue, answer):
@@ -169,7 +168,7 @@ class JGame:
 
     def InsertGameRecord(self):
         cur = self.DBConnection.cursor()
-        if cur.execute("select * from games where game_url = ? and processed_ind = 0", self.gameURL).rowcount == 0:
+        if cur.execute("select * from games where game_url = ? and processed_ind is null", self.gameURL).rowcount == 0:
             cur.execute("""INSERT INTO [dbo].[Games]
                 ([game_name]
                 ,[game_url]

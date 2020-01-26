@@ -9,6 +9,7 @@ from JGame  import JGame
 
 global jg 
 global conn 
+
 conn = pyodbc.connect('Driver={SQL Server};'
                       'Server=LEGOLAS;'
                       'Database=Jeopardy;'
@@ -22,13 +23,14 @@ def grabGameDetails(game, seasonID):
   page_content = BeautifulSoup(page_response.content, "lxml")
   x = re.search('#([0-9]+)', page_content.title.text)
   
+ 
   if x:
     jg = JGame()
     jg.gameNumber = x.group(1)
     jg.DBConnection =  conn
     jg.gameURL = game
     jg.seasonID = seasonID
- 
+    
   jg.InsertGameRecord()
  
   if jg.processedIND == 0:
@@ -44,7 +46,7 @@ def grabGameDetails(game, seasonID):
       else:
         jg.addCat(3, cat.text)
         i = 0
-      grabQuestionsAnswers(page_content, jg)
+    grabQuestionsAnswers(page_content, jg)
 
 
 
@@ -76,7 +78,12 @@ def grabSeasonData(seasonURL, seasonID):
   for game in aTags:
     if (game.attrs["href"].find('showgame.php') != -1):
         grabGameDetails(game.attrs["href"], seasonID)
-   
+
+  cur = conn.cursor()
+  cur.execute("""UPDATE [dbo].[Seasons]
+             SET processed_IND = 1
+             WHERE season_id = ?""",seasonID)
+  cur.commit()
 
 def processSeasons(seasonlist):
   #print (seasonlist.head)
@@ -106,8 +113,7 @@ def processSeasons(seasonlist):
       else:
         if cur.execute("""
                       select * from dbo.seasons s 
-                      left outer join dbo.games g on g.season_id = s.season_id 
-                      where s.season_url = ? and g.processed_ind is null""", season):
+                      where s.season_url = ? and s.processed_ind is null""", season):
           sID = cur.execute("select season_id from seasons where season_url = ?", season).fetchval()
           grabSeasonData(season, sID)
         else:
