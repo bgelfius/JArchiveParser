@@ -16,37 +16,40 @@ conn = pyodbc.connect('Driver={SQL Server};'
                       'Trusted_Connection=yes;')
 
 def grabGameDetails(game, seasonID):
-  time.sleep(5) # sleep 5 seconds as to not overwhelm server
-
-  page_link = game
-  page_response = requests.get(page_link, timeout=5)
-  page_content = BeautifulSoup(page_response.content, "lxml")
-  x = re.search('#([0-9]+)', page_content.title.text)
   
- 
-  if x:
-    jg = JGame()
-    jg.gameNumber = x.group(1)
-    jg.DBConnection =  conn
-    jg.gameURL = game
-    jg.seasonID = seasonID
-    
-  jg.InsertGameRecord()
- 
-  if jg.processedIND == 0:
-    catTags = page_content.find_all("td", attrs={"class":"category_name"})
-    i = 0
-    for cat in catTags:
-      if (i < 6):
-        jg.addCat(1, cat.text)
-        i=i+1
-      elif (i > 5 and i < 12):
-        jg.addCat(2, cat.text)
-        i=i+1
-      else:
-        jg.addCat(3, cat.text)
-        i = 0
-    grabQuestionsAnswers(page_content, jg)
+  cur = conn.cursor()
+  if cur.execute("select * from games where game_url = ? and processed_ind = 1", game).fetchone():
+    pass
+  else:  
+    time.sleep(5) # sleep 5 seconds as to not overwhelm server
+    page_link = game
+    page_response = requests.get(page_link, timeout=5)
+    page_content = BeautifulSoup(page_response.content, "lxml")
+    x = re.search('#([0-9]+)', page_content.title.text)
+  
+    if x:
+      jg = JGame()
+      jg.gameNumber = x.group(1)
+      jg.DBConnection =  conn
+      jg.gameURL = game
+      jg.seasonID = seasonID
+      
+    jg.InsertGameRecord()
+  
+    if jg.processedIND == 0:
+      catTags = page_content.find_all("td", attrs={"class":"category_name"})
+      i = 0
+      for cat in catTags:
+        if (i < 6):
+          jg.addCat(1, cat.text)
+          i=i+1
+        elif (i > 5 and i < 12):
+          jg.addCat(2, cat.text)
+          i=i+1
+        else:
+          jg.addCat(3, cat.text)
+          i = 0
+      grabQuestionsAnswers(page_content, jg)
 
 
 
