@@ -80,6 +80,7 @@ def grabSeasonData(seasonURL, seasonID):
 
   for game in aTags:
     if (game.attrs["href"].find('showgame.php') != -1):
+      if (game.attrs["href"].find('http') != -1):
         grabGameDetails(game.attrs["href"], seasonID)
 
   cur = conn.cursor()
