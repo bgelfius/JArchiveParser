@@ -116,12 +116,12 @@ def processSeasons(seasonlist):
       else:
         if cur.execute("""
                       select * from dbo.seasons s 
-                      where s.season_url = ? and s.processed_ind is null""", season):
+                      where s.season_url = ? and s.processed_ind is null""", season).rowcount == 0:
+          print(season)
+        else:            
           sID = cur.execute("select season_id from seasons where season_url = ?", season).fetchval()
           grabSeasonData(season, sID)
-        else:
-          print(cur)
-
+        
   cur.close()
 
 
